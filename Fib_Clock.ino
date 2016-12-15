@@ -65,8 +65,8 @@ void setup( void ) {
   Serial.begin( 9600 );
   // Serial.println( "RGB LED Controller" );
 
-  while ( !Serial );
-  delay( 200 );
+  // while ( !Serial );
+  // delay( 200 );
 
   // Pins for LEDs
   pinMode( 2, OUTPUT );
@@ -115,7 +115,7 @@ void loop( void ) {
   ParseHours( myHour );
   ParseMins( myMinute );
 
-  delay( 5000 );
+  delay( 1000 );
 }
 
 void SetLight( int pIndex, int pColors ) {
@@ -186,6 +186,7 @@ void ParseMins( int pMins ) {
 
   int myIndex;
   int myTotal = 4;
+  bool isDone = false;
   while ( myMins != 0 ) {
     myIndex = myRNR[ myTotal ];
     int myValue = Values[ myIndex ];
@@ -197,15 +198,18 @@ void ParseMins( int pMins ) {
         ResetMins();
 
         ParseMins( pMins );
-        return;
+        isDone = true;
+        break;
       }
 
       continue;
     }
 
-    SetLight( myRNR[ myTotal ], GetColor( myRNR[ myTotal ] ) );
-    myTotal--;
-    myMins -= myValue;
+    if ( !isDone ) {
+      SetLight( myRNR[ myTotal ], GetColor( myRNR[ myTotal ] ) );
+      myTotal--;
+      myMins -= myValue;
+    }
   }
 
   LastMins = pMins / 5;
@@ -232,6 +236,8 @@ void ParseHours( int pHours ) {
   int myHours = pHours;
   int myIndex;
   int myTotal = 4;
+  bool isDone = false;
+  
   while ( myHours != 0 ) {
     myIndex = myRNR[ myTotal ];
     int myValue = Values[ myIndex ];
@@ -243,15 +249,18 @@ void ParseHours( int pHours ) {
         ResetHours();
 
         ParseHours( pHours );
-        return;
+        isDone = true;
+        break;
       }
 
       continue;
     }
 
-    SetLight( myRNR[ myTotal ], HOURS );
-    myTotal--;
-    myHours -= myValue;
+    if ( !isDone ) {
+      SetLight( myRNR[ myTotal ], HOURS );
+      myTotal--;
+      myHours -= myValue;
+    }
   }
 
   LastHour = pHours;
