@@ -1,4 +1,3 @@
-
 #include <Wire.h>
 
 #define PrescalerOverflowValue 4
@@ -97,25 +96,194 @@ void setup( void ) {
   TIMSK2 = 1 << TOIE2;
 
   // Set Initial Time Here
-  // setDS3231Time( 0, 48, 10, 5, 15, 12, 16 );
+  // Second, Minute, Hour, DayOfWeek, DayOfMonth, Month, Yearear
+  // setDS3231Time( 0, 1, 9, 1, 9, 6, 19 );
+
+  LastHour = LastMins = -1;
 
   randomSeed( analogRead( A0 ) );
   ResetHours();
+
+  // ParseHours( 2 );
+  // ParseMins( 20 );
 }
 
 void loop( void ) {
   byte mySecond, myMinute, myHour, myDayOfWeek, myDayOfMonth, myMonth, myYear;
   readDS3231Time( &mySecond, &myMinute, &myHour, &myDayOfWeek, &myDayOfMonth, &myMonth, &myYear);
   displayTime( mySecond, myMinute, myHour, myDayOfWeek, myDayOfMonth, myMonth, myYear );
-  
-  if ( myHour > 12 ) {
-    myHour -= 12;
+
+  int myIntHour = ( int ) myHour;
+  if ( myIntHour > 12 ) {
+    myIntHour -= 12;
   }
 
-  ParseHours( myHour );
-  ParseMins( myMinute );
+  if ( myIntHour == 0 ) {
+    myIntHour = 12;
+  }
+
+  ParseHours( myIntHour );
+  ParseMins( ( int ) myMinute );
 
   delay( 1000 );
+}
+
+void ParseHours( int p_hours ) {
+  if ( p_hours == LastHour ) {
+    return;
+  }
+
+  ResetHours();
+
+  int lights[ 5 ];
+  GetTimePositions( p_hours, lights );
+
+  for ( int i = 0; i < 5; i++ ) {
+    if ( lights[ i ] == 1 ) {
+      SetLight( i, HOURS );
+    }
+  }
+  
+  LastHour = p_hours;
+}
+
+void ParseMins( int p_mins ) {
+  int myMins = p_mins / 5;
+  if ( myMins == LastMins ) {
+    return;
+  }
+
+  ResetMins();
+
+  int lights[ 5 ];
+  GetTimePositions( myMins, lights );
+
+  for ( int i = 0; i < 5; i++ ) {
+    if ( lights[ i ] == 1 ) {
+      SetLight( i, GetColor( i ) );
+    }
+  }
+
+  LastMins = myMins;
+}
+
+void GetTimePositions( int p_time, int p_lights[] ) {
+  if ( p_time == 0 ) {
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = 0;
+    }
+  } else if ( p_time == 1 ) {
+    int p[ 2 ][ 5 ] = { 
+      { 1, 0, 0, 0, 0 },
+      { 0, 1, 0, 0, 0 }
+    };
+    int index = random ( 2 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 2 ) {
+    int p[ 2 ][ 5 ] = { 
+      { 1, 1, 0, 0, 0 },
+      { 0, 0, 1, 0, 0 }
+    };
+    int index = random ( 2 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 3 ) {
+    int p[ 3 ][ 5 ] = {
+      { 1, 0, 1, 0, 0 },
+      { 0, 1, 1, 0, 0 },
+      { 0, 0, 0, 1, 0 }
+    };
+    int index = random ( 3 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 4 ) {
+    int p[ 3 ][ 5 ] = {
+      { 1, 1, 1, 0, 0 },
+      { 1, 0, 0, 1, 0 },
+      { 0, 1, 0, 1, 0 }
+    };
+    int index = random ( 3 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 5 ) {
+    int p[ 3 ][ 5 ] = {
+      { 0, 0, 0, 0, 1 },
+      { 1, 1, 0, 1, 0 },
+      { 0, 0, 1, 1, 0 }
+    };
+    int index = random ( 3 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 6 ) {
+    int p[ 4 ][ 5 ] = {
+      { 1, 0, 0, 0, 1 },
+      { 0, 1, 0, 0, 1 },
+      { 1, 0, 1, 1, 0 },
+      { 0, 1, 1, 1, 0 }
+    };
+    int index = random ( 4 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 7 ) {
+    int p[ 3 ][ 5 ] = {
+      { 1, 1, 0, 0, 1 },
+      { 0, 0, 1, 0, 1 },
+      { 1, 1, 1, 1, 0 }
+    };
+    int index = random ( 3 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 8 ) {
+    int p[ 3 ][ 5 ] = {
+      { 1, 0, 1, 0, 1 },
+      { 0, 1, 1, 0, 1 },
+      { 0, 0, 0, 1, 1 }
+    };
+    int index = random ( 3 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 9 ) {
+    int p[ 3 ][ 5 ] = {
+      { 1, 1, 1, 0, 1 },
+      { 1, 0, 0, 1, 1 },
+      { 0, 1, 0, 1, 1 }
+    };
+    int index = random ( 3 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 10 ) {
+    int p[ 2 ][ 5 ] = {
+      { 1, 1, 0, 1, 1 },
+      { 0, 0, 1, 1, 1 }
+    };
+    int index = random ( 2 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else if ( p_time == 11 ) {
+    int p[ 2 ][ 5 ] = {
+      { 1, 0, 1, 1, 1 },
+      { 0, 1, 1, 1, 1 }
+    };
+    int index = random ( 3 );
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = p[ index ][ i ];
+    }
+  } else {
+    for ( int i = 0; i < 5; i++ ) {
+      p_lights[ i ] = 1;
+    }
+  }
 }
 
 void SetLight( int pIndex, int pColors ) {
@@ -164,7 +332,8 @@ int GetColor( int pIndex ) {
   return MINS;
 }
 
-void ParseMins( int pMins ) {
+/*
+  void ParseMins( int pMins ) {
   int myMins = pMins / 5;
 
   if ( LastMins == myMins ) {
@@ -213,9 +382,9 @@ void ParseMins( int pMins ) {
   }
 
   LastMins = pMins / 5;
-}
+  }
 
-void ParseHours( int pHours ) {
+  void ParseHours( int pHours ) {
   if ( LastHour == pHours ) {
     return;
   }
@@ -237,7 +406,7 @@ void ParseHours( int pHours ) {
   int myIndex;
   int myTotal = 4;
   bool isDone = false;
-  
+
   while ( myHours != 0 ) {
     myIndex = myRNR[ myTotal ];
     int myValue = Values[ myIndex ];
@@ -264,7 +433,7 @@ void ParseHours( int pHours ) {
   }
 
   LastHour = pHours;
-}
+  }*/
 
 ISR( TIMER2_OVF_vect ) {
   if ( Prescaler < PrescalerOverflowValue ) {
@@ -411,6 +580,7 @@ void displayTime( byte p_second, byte p_minute, byte p_hour, byte p_dayOfWeek, b
   Serial.print( "/");
   Serial.print( p_year, DEC );
   Serial.print( " Day of week: ");
+
   switch ( p_dayOfWeek ) {
     case 1:
       Serial.println("Sunday");
@@ -432,6 +602,10 @@ void displayTime( byte p_second, byte p_minute, byte p_hour, byte p_dayOfWeek, b
       break;
     case 7:
       Serial.println("Saturday");
+      break;
+    default:
+      Serial.print ( "Error-" );
+      Serial.println( p_dayOfWeek );
       break;
   }
 }
